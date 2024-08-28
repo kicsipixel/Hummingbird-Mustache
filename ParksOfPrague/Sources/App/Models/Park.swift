@@ -36,4 +36,4 @@ final class Park: Model, @unchecked Sendable {
     }
 }
 
-extension Park: ResponseCodable, Codable {}
+extension Park: ResponseCodable {}

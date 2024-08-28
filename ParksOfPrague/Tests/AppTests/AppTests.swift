@@ -3,7 +3,6 @@ import HummingbirdTesting
 import Logging
 import XCTest
 
-
 @testable import App
 
 final class AppTests: XCTestCase {
@@ -12,7 +11,7 @@ final class AppTests: XCTestCase {
         let port = 0
         let logLevel: Logger.Level? = .trace
     }
-    
+
     func testApp() async throws {
         let args = TestArguments()
         let app = try await buildApplication(args)

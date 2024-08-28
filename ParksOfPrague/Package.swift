@@ -14,7 +14,9 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0"),
         // Database dependencies
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.9.2"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird-fluent.git", from: "2.0.0-beta.2")
+        .package(url: "https://github.com/hummingbird-project/hummingbird-fluent.git", from: "2.0.0-beta.1"),
+        // Mustache
+        .package(url: "https://github.com/hummingbird-project/swift-mustache.git", from: "2.0.0-beta.3")
     ],
     targets: [
         .executableTarget(name: "App",
@@ -23,15 +25,11 @@ let package = Package(
                             .product(name: "Hummingbird", package: "hummingbird"),
                             // Database dependencies
                             .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
-                            .product(name: "HummingbirdFluent", package: "hummingbird-fluent")
+                            .product(name: "HummingbirdFluent", package: "hummingbird-fluent"),
+                            // Mustache
+                            .product(name: "Mustache", package: "swift-mustache")
                           ],
-                          path: "Sources/App",
-                          swiftSettings: [
-                            // Enable better optimizations when building in Release configuration. Despite the use of
-                            // the `.unsafeFlags` construct required by SwiftPM, this flag is recommended for Release
-                            // builds. See <https://github.com/swift-server/guides#building-for-production> for details.
-                            .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
-                          ]
+                          path: "Sources/App"
                          ),
         .testTarget(name: "AppTests",
                     dependencies: [

@@ -1,7 +1,9 @@
 import FluentPostgresDriver
+import Foundation
 import Hummingbird
 import HummingbirdFluent
 import Logging
+import Mustache
 
 /// Application arguments protocol. We use a protocol so we can call
 /// `buildApplication` inside Tests as well as in the App executable.
@@ -14,29 +16,35 @@ public protocol AppArguments {
 }
 
 public func buildApplication(_ arguments: some AppArguments) async throws -> some ApplicationProtocol {
+    let environment = Environment()
     let logger = {
         var logger = Logger(label: "ParksOfPrague")
-        logger.logLevel = arguments.logLevel ?? .info
+        logger.logLevel =
+        arguments.logLevel ??
+        environment.get("LOG_LEVEL").map { Logger.Level(rawValue: $0) ?? .info } ??
+            .info
         return logger
     }()
     
     let router = Router()
+    // Add logging
+    router.add(middleware: LogRequestsMiddleware(.info))
+    router.add(middleware: FileMiddleware())
     
-    // Add health route
+    // Add health endpoint
     router.get("/health") { _,_ -> HTTPResponse.Status in
         return .ok
     }
     
-    // Add / route
-    router.get("/") { _,_ in
-        return "Hello, World! 🌍"
-    }
+    // Template library - Mustache
+    let library = try await MustacheLibrary(directory: "Resources/Templates")
+    assert(library.getTemplate(named: "index") != nil)
     
     let fluent = Fluent(logger: logger)
     let env = try await Environment.dotEnv()
     
-    // Configure database
-    let postgreSQLConfig = SQLPostgresConfiguration(hostname: env.get("DATABASE_HOST") ?? "localhost",
+    // Configure database env.get("DATABASE_HOST") ??
+    let postgreSQLConfig = SQLPostgresConfiguration(hostname:  "localhost",
                                                     port: env.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? SQLPostgresConfiguration.ianaPortNumber,
                                                     username: env.get("DATABASE_USERNAME") ?? "username",
                                                     password: env.get("DATABASE_PASSWORD") ?? "password",
@@ -52,6 +60,7 @@ public func buildApplication(_ arguments: some AppArguments) async throws -> som
     
     // Add controller
     ParksController(fluent: fluent).addRoutes(to: router.group("api/v1/parks"))
+    WebsitesController(mustacheLibrary: library).addRoutes(to: router)
     
     var app = Application(
         router: router,

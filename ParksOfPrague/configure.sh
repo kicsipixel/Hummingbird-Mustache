@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-
 PWD=$(pwd)
-TARGET_FOLDER=${1:-$PWD}
-BASE_FOLDER=$(basename $TARGET_FOLDER)
+TEMPLATE_FOLDER=$(dirname $0)
+RELATIVE_TARGET_FOLDER=${1:-}
+TARGET_FOLDER=$(cd "$(dirname "$RELATIVE_TARGET_FOLDER")"; pwd -P)/$(basename "$RELATIVE_TARGET_FOLDER")
+BASE_FOLDER=$(basename "$TARGET_FOLDER")
 CLEAN_BASE_FOLDER=$(echo "$BASE_FOLDER" | sed -e 's/[^a-zA-Z0-9_]/_/g')
 
 TEMP_FOLDER=$(mktemp -d)
@@ -16,7 +17,8 @@ cleanup()
 # Download MO bash mustache renderer
 download_mo() 
 {
-    curl -sSL https://raw.githubusercontent.com/tests-always-included/mo/master/mo -o "$MO"
+    # v3.0.6 of mo is broken
+    curl -sSL https://raw.githubusercontent.com/tests-always-included/mo/3.0.5/mo -o "$MO"
     chmod a+x "$MO"
 }
 
@@ -36,13 +38,6 @@ run_mustache()
         $MO "$FILE" > "$TEMP_FOLDER"/tempfile
         mv -f "$TEMP_FOLDER"/tempfile "$TARGET_FOLDER/$FILE"
     done
-}
-
-run_mustache-template()
-{
-    echo $1 
-    #| $MO > "$TEMP_FOLDER"/$2
-    echo $2
 }
 
 exitWithError()
@@ -67,11 +62,11 @@ if [[ "$TARGET_FOLDER" != "$PWD" ]]; then
     echo "Outputting to $TARGET_FOLDER"
     mkdir -p "$TARGET_FOLDER"/Sources/App
     mkdir -p "$TARGET_FOLDER"/Tests/AppTests
+    mkdir -p "$TARGET_FOLDER"/.vscode
+    cp -r $TEMPLATE_FOLDER/.vscode/hummingbird.code-snippets $TARGET_FOLDER/.vscode
 else
     echo "Outputting to current folder"
 fi
-
-
 
 echo -n "Enter your package name: "
 read_input_with_default "$CLEAN_BASE_FOLDER"
@@ -87,6 +82,8 @@ if [[ "$HB_EXECUTABLE_NAME" =~ [^a-zA-Z0-9_] ]]; then
     exitWithError "Invalid executable name: $HB_EXECUTABLE_NAME"
 fi
 
+pushd $TEMPLATE_FOLDER
+
 # Root level files
 FILES=$(find . -maxdepth 1 ! -type d ! -name "*.sh")
 run_mustache "$FILES"
@@ -95,7 +92,9 @@ FILES=$(find Sources Tests ! -type d)
 run_mustache "$FILES"
 
 # README file
-cat <<EOF | $MO > $TARGET_FOLDER/README.md
+cat <<EOF | $MO > "$TARGET_FOLDER"/README.md
 # $HB_PACKAGE_NAME
-My awesome project
+Hummingbird server framework project
 EOF
+
+popd

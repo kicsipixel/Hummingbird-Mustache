@@ -1,2 +1,2 @@
-# Parks Of Prague
-Sample project for a tutorial.
+# ParksOfPrague
+Hummingbird server framework project
