@@ -38,7 +38,7 @@ public func buildApplication(_ arguments: some AppArguments) async throws -> som
     
     // Template library - Mustache
     let library = try await MustacheLibrary(directory: "Resources/Templates")
-    assert(library.getTemplate(named: "index") != nil)
+    assert(library.getTemplate(named: "base") != nil)
     
     let fluent = Fluent(logger: logger)
     let env = try await Environment.dotEnv()
@@ -60,7 +60,7 @@ public func buildApplication(_ arguments: some AppArguments) async throws -> som
     
     // Add controller
     ParksController(fluent: fluent).addRoutes(to: router.group("api/v1/parks"))
-    WebsitesController(mustacheLibrary: library).addRoutes(to: router)
+    WebsitesController(fluent: fluent, mustacheLibrary: library).addRoutes(to: router)
     
     var app = Application(
         router: router,
