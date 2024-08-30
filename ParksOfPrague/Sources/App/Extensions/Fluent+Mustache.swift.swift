@@ -19,8 +19,10 @@ extension FieldProperty: MustacheTransformable {
 extension GroupProperty: MustacheTransformable {
     public func transform(_ name: String) -> Any? {
         switch name {
-        case "wrappedValue":
-            return wrappedValue
+        case "0":
+            return wrappedValue.properties[0].anyValue
+        case "1":
+            return wrappedValue.properties[1].anyValue
         default:
             return nil
         }
