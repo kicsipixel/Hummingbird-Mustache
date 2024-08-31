@@ -1,29 +1,25 @@
 {{<base}}
-    {{$body}}
-    <h1>Parks</h1>
-        <table class="table table-bordered table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>Name</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#parks}}
-            <tr>
-                <td>
-                    {{wrappedValue(_name)}}
-                </td>
-                <td>
-                    {{0(_coordinates)}}
-                </td>
-                <td>
-                    {{1(_coordinates)}}
-                </td>
-            </tr>
-            {{/parks}}
-    </tbody>
+{{$body}}
+<h1>Parks</h1>
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Name</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#parkContexts}}
+        <tr>
+            <td>
+                <a href="/park/{{ id }}">{{ name }}</a>
+            </td>
+            <td>{{ coordinates.latitude }}</td>
+            <td>{{ coordinates.longitude }}</td>
+        </tr>
+    {{/parkContexts}}
+</tbody>
 </table>
-     {{/body}}
+{{/body}}
 {{/base}}
