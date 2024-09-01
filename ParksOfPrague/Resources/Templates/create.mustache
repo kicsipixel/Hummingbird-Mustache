@@ -1,0 +1,26 @@
+{{<base}}
+{{$body}}
+<div>
+    <h1>{{ title }}</h1>
+    <form method="post" action="/park/create">
+        <div class="mb-3">
+            <label class="form-label" for="name">Park name</label>
+            <input type="text" name="name" class="form-control" id="name" placeholder="Kampa"/>
+        </div>
+        <div class="mb-3">
+            <div class="row">
+                <div class="col">
+                    <label class="form-label" for="latitude">Latitude</label>
+                    <input type="text" name="latitude" class="form-control" id="latitude" placeholder="50.0959721"/>
+                </div>
+                <div class="col">
+                    <label class="form-label" for="longitude">Longitude</label>
+                    <input type="text" name="longitude" class="form-control" id="longitude" placeholder="14.4202892"/>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{{/body}}
+{{/base}}

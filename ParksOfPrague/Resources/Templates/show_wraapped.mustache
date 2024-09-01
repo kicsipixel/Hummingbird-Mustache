@@ -2,6 +2,9 @@
 {{$body}}
 {{#park}}
 <h2>{{ wrappedValue(_name) }}</h2>
+<p>
+    <b>Latitude:</b> {{ parkContext.coordinates.latitude }}, <b>Longitude:</b> {{ parkContext.coordinates.latitude }}
+</p>
 <a class="btn btn-primary" id="parkLink" href="/park/">Edit</a>
 <script>
         // Define the variable

@@ -21,6 +21,8 @@ struct WebsitesController {
     func addRoutes(to router: Router<some RequestContext>) {
         router.get("/", use: self.index)
         router.get("/park/:id", use: self.show)
+        router.get("/park/create", use: self.create)
+        router.post("/park/create", use: self.createPost)
     }
     
     @Sendable func index(request: Request, context: some RequestContext) async throws -> HTML {
@@ -28,12 +30,13 @@ struct WebsitesController {
         
         let parkContext = parks.map { park in
             ParkContext(id: park.id,
-                                     name: park.name,
-                                     coordinates: ParkContext.Coordinates(latitude: park.coordinates.latitude,
-                                                                                       longitude: park.coordinates.longitude))
+                        name: park.name,
+                        coordinates: ParkContext.Coordinates(latitude: park.coordinates.latitude,
+                                                             longitude: park.coordinates.longitude))
         }
         
-        let context = IndexContext(parkContexts: parkContext)
+        let context = IndexContext(title: "Home page",
+                                   parkContexts: parkContext)
         
         guard let html = self.mustacheLibrary.render(context, withTemplate: "index") else {
             throw HTTPError(.internalServerError, message: "Failed to render template.")
@@ -52,7 +55,8 @@ struct WebsitesController {
                                       coordinates: ParkContext.Coordinates(latitude: park.coordinates.latitude,
                                                                            longitude: park.coordinates.longitude))
         
-        let context = ShowContext(parkContext: parkContext)
+        let context = ShowContext(title: park.name,
+                                  parkContext: parkContext)
         
         guard let html = self.mustacheLibrary.render(context, withTemplate: "show") else {
             throw HTTPError(.internalServerError, message: "Failed to render template.")
@@ -60,6 +64,25 @@ struct WebsitesController {
         return HTML(html: html)
     }
     
+    @Sendable func create(request: Request, context: some RequestContext) async throws -> HTML {
+        let context = CreateContext(title: "Add a new park")
+        
+        guard let html = self.mustacheLibrary.render(context, withTemplate: "create") else {
+            throw HTTPError(.internalServerError, message: "Failed to render template.")
+        }
+        return HTML(html: html)
+    }
+    
+    @Sendable func createPost(request: Request, context: some RequestContext) async throws -> HTML {
+        let context = CreateContext(title: "Add a new park")
+        
+        guard let html = self.mustacheLibrary.render(context, withTemplate: "create") else {
+            throw HTTPError(.internalServerError, message: "Failed to render template.")
+        }
+        return HTML(html: html)
+    }
+    
+    /// This will be renamed or deleted...
     @Sendable func test(request: Request, context: some RequestContext) async throws -> HTML {
         let id = try context.parameters.require("id", as: UUID.self)
         guard let park = try await Park.find(id, on: self.fluent.db()) else {
@@ -77,11 +100,17 @@ struct WebsitesController {
 
 /// Contexts
 struct IndexContext: Codable {
+    let title: String
     let parkContexts: [ParkContext]
 }
 
 struct ShowContext: Codable {
+    let title: String
     let parkContext: ParkContext
+}
+
+struct CreateContext: Codable {
+    let title: String
 }
 
 struct ParkContext: Codable {
