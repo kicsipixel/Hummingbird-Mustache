@@ -15,6 +15,16 @@ public protocol AppArguments {
     var logLevel: Logger.Level? { get }
 }
 
+struct HTMLFormRequestContext: RequestContext {
+    var coreContext: CoreRequestContextStorage
+
+    init(source: Source) {
+        self.coreContext = .init(source: source)
+    }
+
+    var requestDecoder: URLFormRequestDecoder { .init() }
+}
+
 public func buildApplication(_ arguments: some AppArguments) async throws -> some ApplicationProtocol {
     let environment = Environment()
     let logger = {
@@ -26,7 +36,7 @@ public func buildApplication(_ arguments: some AppArguments) async throws -> som
         return logger
     }()
     
-    let router = Router()
+    let router = Router(context: HTMLFormRequestContext.self)
     // Add logging
     router.add(middleware: LogRequestsMiddleware(.info))
     router.add(middleware: FileMiddleware())

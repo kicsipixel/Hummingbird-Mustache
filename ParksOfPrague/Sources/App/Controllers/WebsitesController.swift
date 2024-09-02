@@ -20,9 +20,9 @@ struct WebsitesController {
     
     func addRoutes(to router: Router<some RequestContext>) {
         router.get("/", use: self.index)
-        router.get("/park/:id", use: self.show)
-        router.get("/park/create", use: self.create)
-        router.post("/park/create", use: self.createPost)
+        router.get("/parks/:id", use: self.show)
+        router.get("/parks/create", use: self.create)
+        router.post("/parks/create", use: self.createPost)
     }
     
     @Sendable func index(request: Request, context: some RequestContext) async throws -> HTML {
@@ -74,9 +74,22 @@ struct WebsitesController {
     }
     
     @Sendable func createPost(request: Request, context: some RequestContext) async throws -> HTML {
-        let context = CreateContext(title: "Add a new park")
+       // let data = try await request.decode(as: FormData.self, context: context)
+      //  let park = Park(name: data.name, coordinates: Coordinates(latitude: data.latitude, longitude: data.longitude))
         
-        guard let html = self.mustacheLibrary.render(context, withTemplate: "create") else {
+        
+        
+        /// Save to DB
+     //   try await park.save(on: self.fluent.db())
+//        
+//                let context = ShowContext(title: park.name,
+//                                          parkContext: ParkContext(id: nil,
+//                                                                   name: park.name,
+//                                                                   coordinates: ParkContext.Coordinates(latitude: park.coordinates.latitude,
+//                                                                                                        longitude: park.coordinates.longitude)))
+        
+        print("*********RENDER***********")
+        guard let html = self.mustacheLibrary.render((), withTemplate: "test") else {
             throw HTTPError(.internalServerError, message: "Failed to render template.")
         }
         return HTML(html: html)
@@ -91,7 +104,7 @@ struct WebsitesController {
         
         let context = TestContext(park: park)
         
-        guard let html = self.mustacheLibrary.render(context, withTemplate: "test") else {
+        guard let html = self.mustacheLibrary.render((context), withTemplate: "test") else {
             throw HTTPError(.internalServerError, message: "Failed to render template.")
         }
         return HTML(html: html)
@@ -113,6 +126,11 @@ struct CreateContext: Codable {
     let title: String
 }
 
+struct CreatePostContext: Codable {
+    let title: String
+    let park: Park
+}
+
 struct ParkContext: Codable {
     let id: UUID?
     let name: String
@@ -124,6 +142,24 @@ struct ParkContext: Codable {
     }
 }
 
+struct FormData: ResponseCodable {
+    let name: String
+    let coordinates: Coordinates
+}
+
+struct SaveParkData: ResponseCodable {
+    let name: String
+    let coordinates: Coordinates
+    
+    struct CoordinatesData: Codable {
+        let latitude: Double
+        let longitude: Double
+    }
+}
+
+/// This needs to be renamed
 struct TestContext: Codable {
     let park: Park
 }
+
+
