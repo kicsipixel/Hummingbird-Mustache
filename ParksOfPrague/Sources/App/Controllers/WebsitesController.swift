@@ -75,22 +75,20 @@ struct WebsitesController {
     
     @Sendable func createPost(request: Request, context: some RequestContext) async throws -> HTML {
         let data = try await request.decode(as: FormData.self, context: context)
-//        let park = Park(name: data.name, coordinates: Coordinates(latitude: data.latitude, longitude: data.longitude))
-// 
-// print(park)
-        
-        
-        /// Save to DB
-     //   try await park.save(on: self.fluent.db())
-//        
-//                let context = ShowContext(title: park.name,
-//                                          parkContext: ParkContext(id: nil,
-//                                                                   name: park.name,
-//                                                                   coordinates: ParkContext.Coordinates(latitude: park.coordinates.latitude,
-//                                                                                                        longitude: park.coordinates.longitude)))
-        
+        let park = Park(name: data.name, coordinates: Coordinates(latitude: data.latitude, longitude: data.longitude))
  
-        guard let html = self.mustacheLibrary.render((), withTemplate: "test") else {
+        /// Save to DB
+        try await park.save(on: self.fluent.db())
+        
+        /// Show
+        let parkContext = ParkContext(id: park.id,
+                                      name: park.name,
+                                      coordinates: ParkContext.Coordinates(latitude: park.coordinates.latitude,
+                                                                           longitude: park.coordinates.longitude))
+        let context = ShowContext(title: park.name,
+                                  parkContext: parkContext)
+        
+        guard let html = self.mustacheLibrary.render(context, withTemplate: "show") else {
             throw HTTPError(.internalServerError, message: "Failed to render template.")
         }
         return HTML(html: html)

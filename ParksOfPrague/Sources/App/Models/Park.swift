@@ -14,10 +14,10 @@ final class Coordinates: Fields, @unchecked Sendable {
     // Initialization
     init() { }
     
-//    init(latitude: Double, longitude: Double) {
-//        self.latitude = latitude
-//        self.longitude = longitude
-//    }
+    init(latitude: Double, longitude: Double) {
+        self.latitude = latitude
+        self.longitude = longitude
+    }
 }
 
 final class Park: Model, @unchecked Sendable {
