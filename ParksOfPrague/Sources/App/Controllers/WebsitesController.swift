@@ -74,9 +74,10 @@ struct WebsitesController {
     }
     
     @Sendable func createPost(request: Request, context: some RequestContext) async throws -> HTML {
-       // let data = try await request.decode(as: FormData.self, context: context)
-      //  let park = Park(name: data.name, coordinates: Coordinates(latitude: data.latitude, longitude: data.longitude))
-        
+        let data = try await request.decode(as: FormData.self, context: context)
+//        let park = Park(name: data.name, coordinates: Coordinates(latitude: data.latitude, longitude: data.longitude))
+// 
+// print(park)
         
         
         /// Save to DB
@@ -88,7 +89,7 @@ struct WebsitesController {
 //                                                                   coordinates: ParkContext.Coordinates(latitude: park.coordinates.latitude,
 //                                                                                                        longitude: park.coordinates.longitude)))
         
-        print("*********RENDER***********")
+ 
         guard let html = self.mustacheLibrary.render((), withTemplate: "test") else {
             throw HTTPError(.internalServerError, message: "Failed to render template.")
         }
@@ -144,7 +145,8 @@ struct ParkContext: Codable {
 
 struct FormData: ResponseCodable {
     let name: String
-    let coordinates: Coordinates
+    let latitude: Double
+    let longitude: Double
 }
 
 struct SaveParkData: ResponseCodable {
