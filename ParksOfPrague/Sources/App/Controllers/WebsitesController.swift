@@ -75,13 +75,11 @@ struct WebsitesController {
     
     @Sendable func createPost(request: Request, context: some RequestContext) async throws -> HTML {
         let data = try await request.decode(as: FormData.self, context: context)
-//        let park = Park(name: data.name, coordinates: Coordinates(latitude: data.latitude, longitude: data.longitude))
-// 
-// print(park)
-        
+        let park = Park(name: data.name, coordinates: Coordinates(latitude: data.latitude, longitude: data.longitude))
+
         
         /// Save to DB
-     //   try await park.save(on: self.fluent.db())
+        try await park.save(on: self.fluent.db())
 //        
 //                let context = ShowContext(title: park.name,
 //                                          parkContext: ParkContext(id: nil,
