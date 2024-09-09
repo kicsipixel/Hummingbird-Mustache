@@ -23,6 +23,8 @@ struct WebsitesController {
         router.get("/parks/:id", use: self.show)
         router.get("/parks/create", use: self.create)
         router.post("/parks/create", use: self.createPost)
+        router.get("/parks/:id/edit", use: self.edit)
+        router.post("/parks/:id/edit", use: self.editPost)
     }
     
     @Sendable func index(request: Request, context: some RequestContext) async throws -> HTML {
@@ -76,7 +78,7 @@ struct WebsitesController {
     @Sendable func createPost(request: Request, context: some RequestContext) async throws -> HTML {
         let data = try await request.decode(as: FormData.self, context: context)
         let park = Park(name: data.name, coordinates: Coordinates(latitude: data.latitude, longitude: data.longitude))
- 
+
         /// Save to DB
         try await park.save(on: self.fluent.db())
         
@@ -89,6 +91,52 @@ struct WebsitesController {
                                   parkContext: parkContext)
         
         guard let html = self.mustacheLibrary.render(context, withTemplate: "show") else {
+            throw HTTPError(.internalServerError, message: "Failed to render template.")
+        }
+        return HTML(html: html)
+    }
+    
+    @Sendable func edit(request: Request, context: some RequestContext) async throws -> HTML {
+        let id = try context.parameters.require("id", as: UUID.self)
+        guard let park = try await Park.find(id, on: self.fluent.db()) else {
+            throw HTTPError(.notFound, message: "Park was not found")
+        }
+        
+        let parkContext = ParkContext(id: park.id,
+                                      name: park.name,
+                                      coordinates: ParkContext.Coordinates(latitude: park.coordinates.latitude,
+                                                                           longitude: park.coordinates.longitude))
+        let  context = EditContext(title: "Edit \(park.name)",
+                                   parkContext: parkContext,
+                                   isEditing: true)
+        
+        guard let html = self.mustacheLibrary.render(context, withTemplate: "create", reload: true) else {
+            throw HTTPError(.internalServerError, message: "Failed to render template.")
+        }
+        return HTML(html: html)
+    }
+    
+    @Sendable func editPost(request: Request, context: some RequestContext) async throws -> HTML {
+        let id = try context.parameters.require("id", as: UUID.self)
+        guard let park = try await Park.find(id, on: self.fluent.db()) else {
+            throw HTTPError(.notFound, message: "Park was not found")
+        }
+        
+        let data = try await request.decode(as: FormData.self, context: context)
+                
+        park.name = data.name
+        park.coordinates.latitude = data.latitude
+        park.coordinates.longitude = data.longitude
+
+        /// Save to DB
+        try await park.save(on: self.fluent.db())
+        
+        let parkContext = ParkContext(id: park.id, name: park.name, coordinates: ParkContext.Coordinates(latitude: park.coordinates.latitude,
+                                                                                                         longitude: park.coordinates.longitude))
+        let context = ShowContext(title: park.name,
+                                  parkContext: parkContext)
+        
+        guard let html = self.mustacheLibrary.render(context, withTemplate: "show", reload: true) else {
             throw HTTPError(.internalServerError, message: "Failed to render template.")
         }
         return HTML(html: html)
@@ -128,6 +176,12 @@ struct CreateContext: Codable {
 struct CreatePostContext: Codable {
     let title: String
     let park: Park
+}
+
+struct EditContext: Codable {
+    let title: String
+    let parkContext: ParkContext
+    let isEditing: Bool
 }
 
 struct ParkContext: Codable {
