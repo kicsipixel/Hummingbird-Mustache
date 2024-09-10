@@ -25,6 +25,7 @@ struct WebsitesController {
         router.post("/parks/create", use: self.createPost)
         router.get("/parks/:id/edit", use: self.edit)
         router.post("/parks/:id/edit", use: self.editPost)
+        router.get("/parks/:id/delete", use: self.delete)
     }
     
     @Sendable func index(request: Request, context: some RequestContext) async throws -> HTML {
@@ -142,16 +143,23 @@ struct WebsitesController {
         return HTML(html: html)
     }
     
-    /// This will be renamed or deleted...
-    @Sendable func test(request: Request, context: some RequestContext) async throws -> HTML {
+    @Sendable func delete(request: Request, context: some RequestContext) async throws -> HTML {
         let id = try context.parameters.require("id", as: UUID.self)
-        guard let park = try await Park.find(id, on: self.fluent.db()) else {
-            throw HTTPError(.notFound, message: "Park was not found")
+        guard let park = try await Park.find(id, on: fluent.db()) else {
+            throw HTTPError(.notFound)
         }
         
-        let context = TestContext(park: park)
+        try await park.delete(on: self.fluent.db())
         
-        guard let html = self.mustacheLibrary.render((context), withTemplate: "test") else {
+        let parkContext = ParkContext(id: park.id,
+                                      name: park.name,
+                                      coordinates: ParkContext.Coordinates(latitude: park.coordinates.latitude,
+                                                                           longitude: park.coordinates.longitude))
+        
+        let context = ShowContext(title: park.name,
+                                  parkContext: parkContext)
+        
+        guard let html = self.mustacheLibrary.render(context, withTemplate: "delete") else {
             throw HTTPError(.internalServerError, message: "Failed to render template.")
         }
         return HTML(html: html)
@@ -209,11 +217,6 @@ struct SaveParkData: ResponseCodable {
         let latitude: Double
         let longitude: Double
     }
-}
-
-/// This needs to be renamed
-struct TestContext: Codable {
-    let park: Park
 }
 
 
