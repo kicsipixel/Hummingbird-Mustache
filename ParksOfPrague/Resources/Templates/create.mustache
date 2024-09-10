@@ -1,28 +1,27 @@
 {{<base}}
 {{$body}}
 <div>
-    <h1>{{title}}</h1>
-    <form method="post" action={{^isEditing}}"/parks/create"{{/isEditing}}
-        {{#isEditing}}{{#parkContext}}"/parks/{{id}}/edit"{{/parkContext}}{{/isEditing}} id="myform">
+    <h1>{{ title }}</h1>
+    <form method="post" action={{^isEditing}}"/parks/create"{{/isEditing}} {{#isEditing}}{{#parkContext}}"/parks/{{ id }}/edit"{{/parkContext}}{{/isEditing}} id="myform">
         <div class="mb-3">
             <label class="form-label" for="name">Park name</label>
-            <input type="text" name="name" class="form-control" id="name" placeholder="e.g. Kampa" value={{^isEditing}}""{{/isEditing}} {{#isEditing}}{{#parkContext}}{{name}}{{/parkContext}}{{/isEditing}} />
+            <input type="text" name="name" class="form-control" id="name" placeholder="e.g. Kampa" value={{^isEditing}}""{{/isEditing}} {{#isEditing}}{{#parkContext}}{{ name }}{{/parkContext}}{{/isEditing}} />
         </div>
         <div class="mb-3">
             <div class="row">
                 <div class="col">
                     <label class="form-label" for="latitude">Latitude</label>
-                    <input type="text" name="latitude" class="form-control" id="latitude" placeholder="e.g. 50.0959721" value={{^isEditing}}""{{/isEditing}} {{#isEditing}}{{#parkContext}}{{parkContext.coordinates.latitude}}{{/parkContext}}{{/isEditing}} />
+                    <input type="text" name="latitude" class="form-control" id="latitude" placeholder="e.g. 50.0959721" value={{^isEditing}}""{{/isEditing}} {{#isEditing}}{{#parkContext}}{{ parkContext.coordinates.latitude }}{{/parkContext}}{{/isEditing}} />
                 </div>
                 <div class="col">
                     <label class="form-label" for="longitude">Longitude</label>
-                    <input type="text" name="longitude" class="form-control" id="longitude" placeholder="e.g. 14.4202892"
-                    value={{^isEditing}}""{{/isEditing}} {{#isEditing}}{{#parkContext}}{{parkContext.coordinates.longitude}}{{/parkContext}}{{/isEditing}}
-                    />
+                    <input type="text" name="longitude" class="form-control" id="longitude" placeholder="e.g. 14.4202892" value={{^isEditing}}""{{/isEditing}} {{#isEditing}}{{#parkContext}}{{ parkContext.coordinates.longitude }}{{/parkContext}}{{/isEditing}} />
                 </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">{{^isEditing}}Submit{{/isEditing}}{{#isEditing}}Update{{/isEditing}}</button>
+        <button type="submit" class="btn btn-primary">
+            {{^isEditing}}Submit{{/isEditing}}{{#isEditing}}Update{{/isEditing}}
+        </button>
     </form>
 </div>
 {{/body}}
