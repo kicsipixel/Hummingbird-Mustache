@@ -10,77 +10,79 @@ import Mustache
 /// Any variables added here also have to be added to `App` in App.swift and
 /// `TestArguments` in AppTest.swift
 public protocol AppArguments {
-    var hostname: String { get }
-    var port: Int { get }
-    var logLevel: Logger.Level? { get }
+  var hostname: String { get }
+  var port: Int { get }
+  var logLevel: Logger.Level? { get }
 }
 
 struct HTMLFormRequestContext: RequestContext {
-    var coreContext: CoreRequestContextStorage
+  var coreContext: CoreRequestContextStorage
 
-    init(source: Source) {
-        self.coreContext = .init(source: source)
-    }
+  init(source: Source) {
+    self.coreContext = .init(source: source)
+  }
 
-    var requestDecoder: URLFormRequestDecoder { .init() }
+  var requestDecoder: URLFormRequestDecoder { .init() }
 }
 
-public func buildApplication(_ arguments: some AppArguments) async throws -> some ApplicationProtocol {
-    let environment = Environment()
-    let logger = {
-        var logger = Logger(label: "ParksOfPrague")
-        logger.logLevel =
-        arguments.logLevel ??
-        environment.get("LOG_LEVEL").map { Logger.Level(rawValue: $0) ?? .info } ??
-            .info
-        return logger
-    }()
-    
-    let router = Router(context: HTMLFormRequestContext.self)
-    // Add logging
-    router.add(middleware: LogRequestsMiddleware(.info))
-    router.add(middleware: FileMiddleware())
-    
-    // Add health endpoint
-    router.get("/health") { _,_ -> HTTPResponse.Status in
-        return .ok
-    }
-    
-    // Template library - Mustache
-    let library = try await MustacheLibrary(directory: Bundle.module.bundleURL.path)
-    assert(library.getTemplate(named: "base") != nil)
-    
-    let fluent = Fluent(logger: logger)
-    let env = try await Environment.dotEnv()
-    
-    // Configure database
-    let postgreSQLConfig = SQLPostgresConfiguration(hostname: env.get("DATABASE_HOST") ?? "localhost",
-                                                    port: env.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? SQLPostgresConfiguration.ianaPortNumber,
-                                                    username: env.get("DATABASE_USERNAME") ?? "username",
-                                                    password: env.get("DATABASE_PASSWORD") ?? "password",
-                                                    database: env.get("DATABASE_NAME") ?? "db",
-                                                    tls: .prefer(try .init(configuration: .clientDefault)))
-    
-    fluent.databases.use(.postgres(configuration: postgreSQLConfig, sqlLogLevel: .warning), as: .psql)
-    
-    await fluent.migrations.add(CreateParkTableMigration())
-    
-    // Migration
-    try await fluent.migrate()
-    
-    // Add controller
-    ParksController(fluent: fluent).addRoutes(to: router.group("api/v1/parks"))
-    WebsitesController(fluent: fluent, mustacheLibrary: library).addRoutes(to: router)
-    
-    var app = Application(
-        router: router,
-        configuration: .init(
-            address: .hostname(arguments.hostname, port: arguments.port),
-            serverName: "ParksOfPrague"
-        ),
-        logger: logger
-    )
-    
-    app.addServices(fluent)
-    return app
+public func buildApplication(_ arguments: some AppArguments) async throws
+  -> some ApplicationProtocol
+{
+  let environment = Environment()
+  let logger = {
+    var logger = Logger(label: "ParksOfPrague")
+    logger.logLevel =
+      arguments.logLevel ?? environment.get("LOG_LEVEL").map { Logger.Level(rawValue: $0) ?? .info }
+      ?? .info
+    return logger
+  }()
+
+  let router = Router(context: HTMLFormRequestContext.self)
+  // Add logging
+  router.add(middleware: LogRequestsMiddleware(.info))
+  router.add(middleware: FileMiddleware())
+
+  // Add health endpoint
+  router.get("/health") { _, _ -> HTTPResponse.Status in
+    return .ok
+  }
+
+  // Template library - Mustache
+  let library = try await MustacheLibrary(directory: Bundle.module.bundleURL.path)
+  assert(library.getTemplate(named: "base") != nil)
+
+  let fluent = Fluent(logger: logger)
+  let env = try await Environment.dotEnv()
+
+  // Configure database
+  let postgreSQLConfig = SQLPostgresConfiguration(
+    hostname: env.get("DATABASE_HOST") ?? "localhost",
+    port: env.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? SQLPostgresConfiguration.ianaPortNumber,
+    username: env.get("DATABASE_USERNAME") ?? "username",
+    password: env.get("DATABASE_PASSWORD") ?? "password",
+    database: env.get("DATABASE_NAME") ?? "db",
+    tls: .prefer(try .init(configuration: .clientDefault)))
+
+  fluent.databases.use(.postgres(configuration: postgreSQLConfig, sqlLogLevel: .warning), as: .psql)
+
+  await fluent.migrations.add(CreateParkTableMigration())
+
+  // Migration
+  try await fluent.migrate()
+
+  // Add controller
+  ParksController(fluent: fluent).addRoutes(to: router.group("api/v1/parks"))
+  WebsitesController(fluent: fluent, mustacheLibrary: library).addRoutes(to: router)
+
+  var app = Application(
+    router: router,
+    configuration: .init(
+      address: .hostname(arguments.hostname, port: arguments.port),
+      serverName: "ParksOfPrague"
+    ),
+    logger: logger
+  )
+
+  app.addServices(fluent)
+  return app
 }

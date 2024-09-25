@@ -6,27 +6,27 @@ import Mustache
 /// `{{wrappedValue(_myProperty)}}`. Note the `_` prefix on the property name. This is
 /// required as this is how property wrappers appear in the Mirror reflection data.
 extension FieldProperty: MustacheTransformable {
-    public func transform(_ name: String) -> Any? {
-        switch name {
-        case "wrappedValue":
-            return wrappedValue
-        default:
-            return nil
-        }
+  public func transform(_ name: String) -> Any? {
+    switch name {
+    case "wrappedValue":
+      return wrappedValue
+    default:
+      return nil
     }
+  }
 }
 
 extension GroupProperty: MustacheTransformable {
-    public func transform(_ name: String) -> Any? {
-        switch name {
-        case "latitude":
-            return wrappedValue.properties.first?.anyValue
-        case "longitude":
-            return wrappedValue.properties.last?.anyValue
-        default:
-            return nil
-        }
+  public func transform(_ name: String) -> Any? {
+    switch name {
+    case "latitude":
+      return wrappedValue.properties.first?.anyValue
+    case "longitude":
+      return wrappedValue.properties.last?.anyValue
+    default:
+      return nil
     }
+  }
 }
 
 /// Extend @propertyWrapper IDProperty to enable mustache transform functions and add one
@@ -34,12 +34,12 @@ extension GroupProperty: MustacheTransformable {
 /// `{{wrappedValue(_myID)}}`. Note the `_` prefix on the property name. This is
 /// required as this is how property wrappers appear in the Mirror reflection data.
 extension IDProperty: MustacheTransformable {
-    public func transform(_ name: String) -> Any? {
-        switch name {
-        case "wrappedValue":
-            return wrappedValue
-        default:
-            return nil
-        }
+  public func transform(_ name: String) -> Any? {
+    switch name {
+    case "wrappedValue":
+      return wrappedValue
+    default:
+      return nil
     }
+  }
 }
