@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hummingbird-project/hummingbird.git",
       "state" : {
-        "revision" : "39362b4df11483d5dd1bc2843998f5b6ddac3c9a",
-        "version" : "2.0.0-rc.5"
+        "revision" : "d4f792d209f02b26a17c0105751220da65207fb2",
+        "version" : "2.0.1"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hummingbird-project/hummingbird-fluent.git",
       "state" : {
-        "revision" : "0e113b770ee67159c96bee9c3122d8a2763a280c",
-        "version" : "2.0.0-beta.2"
+        "revision" : "4e99ed2719205b3edad79267b364d7db68450ed9",
+        "version" : "2.0.0-beta.4"
       }
     },
     {
@@ -176,8 +176,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hummingbird-project/swift-mustache.git",
       "state" : {
-        "revision" : "cde358e364ab26f2b72a5f70613cfb0a574de6c9",
-        "version" : "2.0.0-beta.3"
+        "revision" : "933fa3d60f5b1721b91b07f66866a2baf3e16ed0",
+        "version" : "2.0.0-rc.1"
       }
     },
     {

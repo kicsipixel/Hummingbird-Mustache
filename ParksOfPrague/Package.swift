@@ -10,13 +10,13 @@ let package = Package(
         .executable(name: "App", targets: ["App"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.0.0-rc.5"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0"),
         // Database dependencies
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.9.2"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird-fluent.git", from: "2.0.0-beta.1"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird-fluent.git", from: "2.0.0-beta.4"),
         // Mustache
-        .package(url: "https://github.com/hummingbird-project/swift-mustache.git", from: "2.0.0-beta.3")
+        .package(url: "https://github.com/hummingbird-project/swift-mustache.git", from: "2.0.0-rc.1")
     ],
     targets: [
         .executableTarget(name: "App",
@@ -29,8 +29,8 @@ let package = Package(
                             // Mustache
                             .product(name: "Mustache", package: "swift-mustache")
                           ],
-                          path: "Sources/App"
-                         ),
+                          path: "Sources/App",
+                          resources: [.process("Resources"), .process("Public")]),
         .testTarget(name: "AppTests",
                     dependencies: [
                         .byName(name: "App"),
