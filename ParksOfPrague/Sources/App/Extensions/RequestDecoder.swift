@@ -5,8 +5,7 @@ struct URLFormRequestDecoder: RequestDecoder {
   let decoder = URLEncodedFormDecoder()
 
   func decode<T>(_ type: T.Type, from request: Request, context: some RequestContext) async throws
-    -> T where T: Decodable
-  {
+    -> T where T: Decodable {
     guard let header = request.headers[.contentType] else { throw HTTPError(.badRequest) }
     guard let mediaType = MediaType(from: header) else { throw HTTPError(.badRequest) }
     switch mediaType {

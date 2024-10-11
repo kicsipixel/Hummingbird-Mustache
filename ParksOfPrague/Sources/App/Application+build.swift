@@ -26,8 +26,7 @@ struct HTMLFormRequestContext: RequestContext {
 }
 
 public func buildApplication(_ arguments: some AppArguments) async throws
-  -> some ApplicationProtocol
-{
+  -> some ApplicationProtocol {
   let environment = Environment()
   let logger = {
     var logger = Logger(label: "ParksOfPrague")

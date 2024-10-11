@@ -10,8 +10,8 @@ let package = Package(
     .executable(name: "App", targets: ["App"])
   ],
   dependencies: [
-    .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.0.0"),
-    .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0"),
+    .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.1.0"),
+    .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
     // Database dependencies
     .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.9.2"),
     .package(
@@ -32,7 +32,7 @@ let package = Package(
         .product(name: "Mustache", package: "swift-mustache"),
       ],
       path: "Sources/App",
-      resources: [.process("Resources"), .process("Public")]),
+      resources: [.process("Resources")]),
     .testTarget(
       name: "AppTests",
       dependencies: [
